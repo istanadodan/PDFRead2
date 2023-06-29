@@ -35,6 +35,13 @@ class Model:
          print(f'## ERR ## file path={pdf_path}, error={e}')
          return False
    
+   def find_byTxt(self, tag_name:str, pattern:str)->bool:
+         # if regex:            
+         # else:
+         #    found_tag = self.body.find(tag_name, text=lambda t: t and pattern in t)
+         found_tag = self.body.find(tag_name, text=re.compile(pattern))
+         return found_tag !=None
+          
    def find_byTag(self, tag_name:str, order:int, unicode=True) -> str:
          tags = self.body.find_all(tag_name)
          if not tags: return

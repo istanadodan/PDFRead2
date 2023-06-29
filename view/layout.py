@@ -8,7 +8,7 @@ if current_directory==None or len(current_directory)==0:
 
 layout = [
     [
-        [pg.Text('도급계약서 변환', size=(None, 1), pad=(1,3))],
+        [pg.Text('계약서내역 일괄추출', size=(None, 1), pad=(1,3))],
         [pg.HorizontalSeparator(color='#808080')]
     ],    
     [
@@ -18,7 +18,7 @@ layout = [
         ], 
         [
           pg.Stretch(),          
-          pg.Checkbox('html변환', default=False, key='-HTML_YN-'),          
+          pg.Checkbox('HTML', default=False, key='-HTML_YN-'),          
         ]       
     ],        
     [
@@ -34,11 +34,11 @@ layout = [
     [
         [
         pg.Text('대기상태', key='-PG-V-'),
-        pg.ProgressBar(max_value=100, orientation='h', size=(100,18), border_width=1, key='-PG-', bar_color=('yellow','black'))
+        pg.ProgressBar(max_value=100, orientation='h', size=(100,18), border_width=1, key='-PG-', bar_color=('yellow','black'), pad=(0,1))
         ],
         [pg.HorizontalSeparator(color='#404040')]
     ],
     [
-        pg.Text('', expand_x=True, key='-PG-S-', font = ('Helvetica', 8), text_color='red', background_color='#d5d5c5', pad=(5,1)),
+        pg.Text('', expand_x=True, key='-PG-S-', font = ('Helvetica', 8), text_color='red', background_color='#d5d5c5', pad=(5,3)),
     ]
 ]

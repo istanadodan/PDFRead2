@@ -1,15 +1,16 @@
-from view import View
-import logging
+from view.view import View
 
 def main():
     setup_logging()
-    view = View('이트너스 업무용')
+    
+    view = View('이트너스 업무용V1')
     view.show()
 
-def setup_logging():    
+def setup_logging():     
+    import logging
     logging.basicConfig(
         format='%(asctime)s - %(name)s - %(levelname)s:%(funcName)s - %(message)s',
-        level=logging.DEBUG,
+        level=logging.INFO,
         encoding='utf-8',
         )
 

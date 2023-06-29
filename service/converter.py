@@ -18,7 +18,7 @@ def convert(directory, q, window):
     """        
     HTML_YN = window['-HTML_YN-'].get()
     
-    file_generator = glob(os.path.join(directory,'*.pdf')) 
+    file_generator = glob(os.path.join(directory,'*.pdf'))
     
     total_cnt = len(file_generator)
     if total_cnt ==0:
@@ -27,8 +27,9 @@ def convert(directory, q, window):
     
     df = pd.DataFrame()
     complete_cnt = 0
-    count = 0
-        
+    count = 0    
+    keyMap = dict(type1=[11,12,14,14,15], type2=[13,14,16,16,17], type3=[8,9,11,12,13])
+    
     try:
             
         for file_path in file_generator:
@@ -40,22 +41,32 @@ def convert(directory, q, window):
                 show_error(window)
                 return        
             
+            if parser.find_byTxt('span', '1\.\s*공사명\s*\*\s*\(?\w+'):
+                doc_type ='type3'
+                
+            elif parser.find_byTxt('span', '도급계약서'):
+                doc_type ='type2'
+            else:
+                doc_type ='type1'
+            
+            pos_list = keyMap[doc_type]
+            
             #프로젝트코드
             code = filename[:12]
             #프로젝트명
-            name= pickOne(parser.find_byTag('div',13)) #11
+            name= pickOne(parser.find_byTag('div',pos_list[0]), doc_type)
             #프로젝트 현장주소
-            place= pickOne(parser.find_byTag('div',14)) #12
+            place= pickOne(parser.find_byTag('div',pos_list[1]), doc_type)
             #공사기간
-            period = pickOne(parser.find_byTag('div',16)) #14
+            period = pickOne(parser.find_byTag('div',pos_list[2]), doc_type)
             #총금액
-            amount = pickOne(parser.find_byTag('div',16,False),2) #14
+            amount = pickOne(parser.find_byTag('div',pos_list[3],False), doc_type, 2)
             if not amount:
-                amount = pickOne(parser.find_byTag('div',17,False)) #15
+                amount = pickOne(parser.find_byTag('div',pos_list[4],False), doc_type)
             
             if HTML_YN:
                 with open(f'{file_path[:-4]}.html', 'w', encoding='utf-8') as f:
-                    f.write(parser.body)
+                    f.write(parser.html)
                         
             if None in (code, name, place, amount) or amount.strip()=='' or amount.strip().replace(',','').isnumeric()==False:
                 show_error(window, f'[데이터취득 불가] {filename}') 
@@ -66,7 +77,8 @@ def convert(directory, q, window):
                 send_message(window, f'{filename} 처리완료')                
                 log.debug(f'c={complete_cnt}')
                 
-            count +=1
+            count +=1            
+            window.write_event_value('-PG-V-', f'{count} / {total_cnt}') 
             window.write_event_value('-PG-', int(count / total_cnt * 100))            
             
             check_stop(q)
@@ -89,17 +101,21 @@ def check_stop(q):
     if not q.empty() and q.get(block=False)=='stop':
         q.task_done()
         raise Exception('강제 중단')
-        
-def pickOne(sentences:any, order:int=1)->str:
-    sentences = sentences if isinstance(sentences, list) else [sentences]
-    for sent in sentences:
-        arr = sent.split(';')
-        if len(arr) < order:
-            return
-        txt = arr[order-1]
-        r = re.sub('[^\w|,|~|\s+\w+]','', txt)
-        if r:
-            return r
+
+def pickOne(sent:str, docType, order:int=1)->str:
+    if not sent:
+        return
+    arr = sent.split(';')
+    if len(arr) < order:
+        return
+    txt = arr[order-1]
+    r = re.sub('[^\w|,|~|\s+\w+]','', txt)    
+    if not r:
+        return
+    
+    if docType =='type3':
+        r = re.sub('\d\s\w+\s+','', r)        
+    return r
 
 def send_message(view:pg.Window, message:str):
     log.debug(message)

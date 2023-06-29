@@ -5,7 +5,7 @@ import queue, threading
 class View:
     def __init__(self, title:str):
         from .layout import layout
-        self.window:pg.Window=pg.Window(title, layout, resizable=True, size=(315,215),element_padding=(5,1),finalize=True)        
+        self.window:pg.Window=pg.Window(title, layout, resizable=True, size=(315,210),element_padding=(5,1),finalize=True)        
 
     def show(self):        
         q = queue.Queue()
@@ -22,11 +22,11 @@ class View:
                 if len(down_directory)==0:
                     pg.popup_error('처리대상 폴더명이 입력되지 않았습니다')
                     continue
-                self.window['-PG-V-'].update('개시상태')
+                self.window['-PG-V-'].update('작업개시')
                 self.window['-PG-S-'].update('')
                 self.window['-PG-'].update(0)
                 
-                self.directory = down_directory.replace('/','\\')                
+                self.directory = down_directory.replace('\\','/').replace('[','\[').replace(']','\]')
                 th = threading.Thread(target=convert, args=[self.directory, q, self.window])
                 th.start()     
                 
@@ -41,10 +41,11 @@ class View:
                 
             elif event=='-ERR-':                
                 pg.popup_error(values[event]) 
+                self.window['-PG-V-'].update('에러발생')
                 self.window['-START-'].update(disabled=False)
                 self.window['-STOP-'].update(disabled=True)
             
-            elif event=='-PG-S-':
+            elif event=='-PG-S-':                
                 self.window['-PG-S-'].update(f'{values["-PG-S-"]}')
                 
             elif event=='-PG-V-':
