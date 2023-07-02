@@ -1,4 +1,7 @@
-/test
-/**/__pycache__
+__pycache__
+.vscode
 *.pdf
 launch.json
+y
+y.pub
+.gitignore

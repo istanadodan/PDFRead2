@@ -29,7 +29,7 @@ class Model:
                
             retstr.close()
             
-            return True
+         return True
             
       except Exception as e:
          print(f'## ERR ## file path={pdf_path}, error={e}')
